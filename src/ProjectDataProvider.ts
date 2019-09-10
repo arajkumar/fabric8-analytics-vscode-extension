@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as paths from 'path';
 import * as os from 'os';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { Utils } from './Utils';
 import { StatusMessages } from './statusMessages';
 import { outputChannelDep, initOutputChannel } from './extension';
@@ -288,11 +288,6 @@ export module ProjectDataProvider {
         pyPiInterpreter,
         `-m pip install -r`,
         reqTxtFilePath,
-        `&&`,
-        pyPiInterpreter,
-        StatusMessages.PYPI_INTERPRETOR_CMD,
-        reqTxtFilePath,
-        filepath
       ].join(' ');
       console.log('CMD : ' + cmd);
       outputChannelDep.addMsgOutputChannel('\n CMD :' + cmd);
@@ -308,7 +303,17 @@ export module ProjectDataProvider {
             console.log(error.message);
             reject(_stderr);
           } else {
-            resolve(filepath);
+            // similar to `echo "print('hello')" | python - arg1 arg2`
+            const pipedPython = spawn(pyPiInterpreter, ['-', reqTxtFilePath, filepath]);
+            pipedPython.stdin.end(StatusMessages.PYPI_INTERPRETOR_CMD);
+            pipedPython.on('exit', (code, message) => {
+              if (message) {
+                vscode.window.showErrorMessage(message);
+                reject(message);
+              } else {
+                resolve(filepath);
+              }
+            });
           }
         }
       );
