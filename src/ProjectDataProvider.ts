@@ -306,14 +306,20 @@ export module ProjectDataProvider {
             // similar to `echo "print('hello')" | python - arg1 arg2`
             const pipedPython = spawn(pyPiInterpreter, ['-', reqTxtFilePath, filepath]);
             pipedPython.stdin.end(StatusMessages.PYPI_INTERPRETOR_CMD);
-            pipedPython.on('exit', (code, message) => {
-              if (message) {
-                vscode.window.showErrorMessage(message);
-                reject(message);
-              } else {
+            pipedPython.on('exit', (code, signal) => {
+              // FIXME: remove duplicate codes in error handling
+              if (code === 0) {
                 resolve(filepath);
+              } else {
+                const _stderr:string = `${pipedPython.stderr.read()}`;
+                const outputMsg:string = `code: ${code} \n STDERR : ${_stderr} \n SIGNAL: ${signal}`;
+                outputChannelDep.addMsgOutputChannel(outputMsg);
+                vscode.window.showErrorMessage(_stderr);
+                console.log(_stderr);
+                reject(_stderr);
               }
             });
+            pipedPython.unref(); // extension host event loop shouldn't wait for this to exit
           }
         }
       );

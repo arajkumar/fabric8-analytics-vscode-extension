@@ -109,6 +109,11 @@ suite('projectDataProvider Modules', () => {
     let stubExec = sandbox
       .stub(child_process, 'exec')
       .yields(null, 'success', 'success');
+    // dummy object to return for spawn call
+    const stubChildProcess = child_process.spawn('echo');
+    let stubSpawn = sandbox
+      .stub(child_process, 'spawn')
+      .returns(stubChildProcess);
     let effectivef8PypiPR = await ProjectDataProvider.effectivef8Pypi(
       workspaceFolder.uri.fsPath
     );
