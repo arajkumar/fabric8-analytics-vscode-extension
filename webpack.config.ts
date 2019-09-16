@@ -17,7 +17,7 @@ const config = {
     path: path.resolve(__dirname, 'out', 'src'),
     filename: '[name].js',
     libraryTarget: 'commonjs2',
-    devtoolModuleFilenameTemplate: '../[resource-path]'
+    devtoolModuleFilenameTemplate: '../../[resource-path]'
   },
   devtool: 'source-map',
   externals: {
