@@ -17,13 +17,14 @@ export module authextension {
 
   export const authorize_f8_analytics = context => {
     return new Promise((resolve, reject) => {
-      let context_f8_access_routes = context.globalState.get(
+      const context_f8_access_routes = context.globalState.get(
         'f8_access_routes'
       );
-      let context_f8_3scale_user_key = context.globalState.get(
+      const context_f8_3scale_user_key = context.globalState.get(
         'f8_3scale_user_key'
       );
-      if (context_f8_access_routes && context_f8_3scale_user_key) {
+      const connect_url = context.globalState.get('3scale_connect_url');
+      if (context_f8_access_routes && context_f8_3scale_user_key && connect_url === Apiendpoint.THREE_SCALE_CONNECT_URL) {
         setContextData(context_f8_access_routes, context_f8_3scale_user_key);
         resolve(true);
       } else {
@@ -53,6 +54,7 @@ export module authextension {
           if (resp && resp['endpoints']) {
             context.globalState.update('f8_access_routes', resp['endpoints']);
             context.globalState.update('f8_3scale_user_key', resp['user_key']);
+            context.globalState.update('3scale_connect_url', Apiendpoint.THREE_SCALE_CONNECT_URL);
             let context_f8_access_routes = context.globalState.get(
               'f8_access_routes'
             );
