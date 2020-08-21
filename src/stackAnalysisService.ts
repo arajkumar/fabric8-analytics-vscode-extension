@@ -25,7 +25,7 @@ export module stackAnalysisServices {
           } else if (httpResponse.statusCode === 401) {
             errorMsg = `Failed :: ${httpResponse.statusMessage}, Status: ${
               httpResponse.statusCode
-            }`;
+              }`;
             reject(errorMsg);
           } else if (
             httpResponse.statusCode === 429 ||
@@ -33,14 +33,14 @@ export module stackAnalysisServices {
           ) {
             vscode.window.showInformationMessage(
               `Service is currently busy to process your request for analysis, please try again in few minutes. Status:  ${
-                httpResponse.statusCode
+              httpResponse.statusCode
               } - ${httpResponse.statusMessage} `
             );
             reject(httpResponse.statusCode);
           } else {
             errorMsg = `Failed to trigger application's stack analysis, try in a while. Status: ${
               httpResponse.statusCode
-            } - ${httpResponse.statusMessage}`;
+              } - ${httpResponse.statusMessage}`;
             reject(errorMsg);
           }
         }
@@ -70,14 +70,14 @@ export module stackAnalysisServices {
             } else {
               errorMsg = `Failed :: ${resp.error}, Status: ${
                 httpResponse.statusCode
-              }`;
+                }`;
               reject(errorMsg);
             }
           } else if (httpResponse.statusCode === 401) {
             clearContextInfo(context);
             errorMsg = `Failed :: ${httpResponse.statusMessage}, Status: ${
               httpResponse.statusCode
-            }`;
+              }`;
             reject(errorMsg);
           } else if (
             httpResponse.statusCode === 429 ||
@@ -85,23 +85,23 @@ export module stackAnalysisServices {
           ) {
             errorMsg = `Service is currently busy to process your request for analysis, please try again in few minutes, Status: ${
               httpResponse.statusCode
-            } - ${httpResponse.statusMessage}`;
+              } - ${httpResponse.statusMessage}`;
             reject(errorMsg);
           } else if (httpResponse.statusCode === 400) {
             errorMsg = `Manifest file(s) are not proper. Status:  ${
               httpResponse.statusCode
-            } - ${httpResponse.statusMessage} `;
+              } - ${httpResponse.statusMessage} `;
             reject(errorMsg);
           } else if (httpResponse.statusCode === 408) {
             errorMsg = `Stack analysis request has timed out. Status:  ${
               httpResponse.statusCode
-            } - ${httpResponse.statusMessage} `;
+              } - ${httpResponse.statusMessage} `;
             reject(errorMsg);
           } else {
             clearContextInfo(context);
             errorMsg = `Failed to trigger application's stack analysis, try in a while. Status: ${
               httpResponse.statusCode
-            } - ${httpResponse.statusMessage}`;
+              } - ${httpResponse.statusMessage}`;
             reject(errorMsg);
           }
         }
@@ -124,7 +124,7 @@ export module stackAnalysisServices {
           } else {
             vscode.window.showErrorMessage(
               `Looks like there is some intermittent issue while communicating with services, please try again. Status: ${
-                httpResponse.statusCode
+              httpResponse.statusCode
               }`
             );
             reject(null);
@@ -132,5 +132,27 @@ export module stackAnalysisServices {
         }
       });
     });
+  };
+
+  export const getUUIDService = (options: object) => {
+    return new Promise((resolve, reject) => {
+      request.post(options, (err, httpResponse, body) => {
+        if (err) {
+          reject(null);
+        } else {
+          if (httpResponse.statusCode === 200) {
+            let resp = JSON.parse(body);
+            resolve(resp);
+          } else {
+            vscode.window.showErrorMessage(
+              `Unable to get UUID. Status: ${
+              httpResponse.statusCode
+              }`
+            );
+            reject(null);
+          }
+        }
+      })
+    })
   };
 }

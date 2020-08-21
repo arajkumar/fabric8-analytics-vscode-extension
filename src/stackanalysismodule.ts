@@ -50,6 +50,7 @@ export module stackanalysismodule {
               options['formData'] = payloadData;
               options['headers'] = {
                 showTransitiveReport: 'true',
+                uuid: process.env.UUID
               };
               thatContext = context;
               let respId = await stackAnalysisServices.postStackAnalysisService(
