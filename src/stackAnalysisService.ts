@@ -133,26 +133,4 @@ export module stackAnalysisServices {
       });
     });
   };
-
-  export const getUUIDService = (options: object) => {
-    return new Promise((resolve, reject) => {
-      request.post(options, (err, httpResponse, body) => {
-        if (err) {
-          reject(null);
-        } else {
-          if (httpResponse.statusCode === 200) {
-            let resp = JSON.parse(body);
-            resolve(resp);
-          } else {
-            vscode.window.showErrorMessage(
-              `Unable to get UUID. Status: ${
-              httpResponse.statusCode
-              }`
-            );
-            reject(null);
-          }
-        }
-      })
-    })
-  };
 }

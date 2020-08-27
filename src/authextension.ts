@@ -3,6 +3,7 @@
 import { Apiendpoint } from './apiendpoint';
 import { stackAnalysisServices } from './stackAnalysisService';
 import { GlobalState } from './constants';
+import * as fetch from 'node-fetch'
 
 export module authextension {
   export let setContextData: any;
@@ -17,13 +18,12 @@ export module authextension {
     process.env['THREE_SCALE_USER_TOKEN'] = context_f8_3scale_user_key;
   };
 
-  setUUID = (context_UUID) => {
-    process.env['UUID'] = context_UUID;
+  setUUID = (uuid) => {
+    process.env['UUID'] = uuid;
   };
 
-  export const authorize_f8_analytics = context => {
-    return new Promise((resolve, reject) => {
-      let respData;
+  export const authorize_f8_analytics = async context => {
+    try {
       let context_f8_access_routes = context.globalState.get(
         'f8_access_routes'
       );
@@ -34,50 +34,52 @@ export module authextension {
       if (context_f8_access_routes && context_f8_3scale_user_key) {
         setContextData(context_f8_access_routes, context_f8_3scale_user_key);
       } else {
-        respData = get_3scale_routes(context);
+        let respData = await get_3scale_routes(context);
         if (!respData) {
-          reject(respData);
+          return false;
         }
       }
 
-      let context_UUID = context.globalState.get(GlobalState.UUID);
+      let uuid = context.globalState.get(GlobalState.UUID);
 
-      if (context_UUID && context_UUID != '') {
-        setUUID(context_UUID);
+      if (uuid && uuid != '') {
+        setUUID(uuid);
       } else {
-        respData = get_UUID(context);
-        if (!respData) {
-          reject(respData);
+        let response = await getUUID(context);
+        if (!response) {
+          return false;
         }
       }
 
-      resolve(true);
-    });
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   };
 
-  export const get_UUID = context => {
-    return new Promise((resolve, reject) => {
-      let options = {};
-      options['uri'] = `${
+  export const getUUID = async context => {
+    try {
+      const url = `${
         Apiendpoint.OSIO_ROUTE_URL
-        }/user?user_key=${Apiendpoint.THREE_SCALE_CONNECT_KEY}`;
+        }/user?user_key=${Apiendpoint.STACK_API_USER_KEY}`;
 
-      stackAnalysisServices
-        .getUUIDService(options)
-        .then(respData => {
-          let uuid = respData;
-          if (uuid) {
-            context.globalState.update(GlobalState.UUID, uuid);
-            let context_UUID = context.globalState.get(GlobalState.UUID);
-            setUUID(context_UUID);
-            resolve(true);
-          }
-        })
-        .catch(err => {
-          reject(null);
-        });
-    });
-  };
+      const response = await fetch(url, { method: 'POST' });
+      if (response.ok) {
+        let respData = await response.json();
+        context.globalState.update(GlobalState.UUID, respData['user_id']);
+        let uuid = context.globalState.get(GlobalState.UUID);
+        setUUID(uuid);
+        return true;
+      } else {
+        console.log(`${url} : ` + response.status);
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
 
   export const get_3scale_routes = context => {
     return new Promise((resolve, reject) => {

@@ -70,6 +70,9 @@ export module stackanalysismodule {
                 }stack-analyses/${respId}?user_key=${
                 Apiendpoint.STACK_API_USER_KEY
                 }`;
+              options['headers'] = {
+                uuid: process.env.UUID
+              };
               let timeoutCounter = getRequestTimeout / getRequestPollInterval;
               const interval = setInterval(() => {
                 stackAnalysisServices
