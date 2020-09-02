@@ -89,9 +89,7 @@ suite('authextension Modules', () => {
     context.globalState.update('f8_access_routes', '');
     context.globalState.update('f8_3scale_user_key', '');
     context.globalState.update(GlobalState.UUID, '');
-    const response = {
-      user_id: "a1b2c3d4"
-    }
+    const response = "a1b2c3d4";
     let stubGet_3scale_routes = sandbox
       .stub(authextension, 'get_3scale_routes')
       .resolves(true);

@@ -45,10 +45,9 @@ export module authextension {
       if (uuid && uuid != '') {
         setUUID(uuid);
       } else {
-        let response = await getUUID(context);
-        if (response && response['user_id']) {
-          context.globalState.update(GlobalState.UUID, response['user_id']);
-          uuid = context.globalState.get(GlobalState.UUID);
+        uuid = await getUUID(context);
+        if (uuid) {
+          context.globalState.update(GlobalState.UUID, uuid);
           setUUID(uuid);
         } else {
           return false;
@@ -63,22 +62,16 @@ export module authextension {
   };
 
   export const getUUID = async context => {
-    try {
-      const url = `${
-        Apiendpoint.OSIO_ROUTE_URL
-        }/user?user_key=${Apiendpoint.STACK_API_USER_KEY}`;
+    const url = `${
+      Apiendpoint.OSIO_ROUTE_URL
+      }/user?user_key=${Apiendpoint.STACK_API_USER_KEY}`;
 
-      const response = await fetch(url, { method: 'POST' });
-      if (response.ok) {
-        let respData = await response.json();
-        return respData;
-      } else {
-        console.log(`${url} : ` + response.status);
-        return false;
-      }
-    } catch (error) {
-      console.log(error);
-      return false;
+    const response = await fetch(url, { method: 'POST' });
+    if (response.ok) {
+      let respData = await response.json();
+      return respData['user_id'];
+    } else {
+      throw (`${url} : ` + response.status);
     }
   }
 
