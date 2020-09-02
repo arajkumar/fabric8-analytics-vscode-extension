@@ -46,7 +46,11 @@ export module authextension {
         setUUID(uuid);
       } else {
         let response = await getUUID(context);
-        if (!response) {
+        if (response && response['user_id']) {
+          context.globalState.update(GlobalState.UUID, response['user_id']);
+          uuid = context.globalState.get(GlobalState.UUID);
+          setUUID(uuid);
+        } else {
           return false;
         }
       }
@@ -67,10 +71,7 @@ export module authextension {
       const response = await fetch(url, { method: 'POST' });
       if (response.ok) {
         let respData = await response.json();
-        context.globalState.update(GlobalState.UUID, respData['user_id']);
-        let uuid = context.globalState.get(GlobalState.UUID);
-        setUUID(uuid);
-        return true;
+        return respData;
       } else {
         console.log(`${url} : ` + response.status);
         return false;

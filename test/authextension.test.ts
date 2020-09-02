@@ -5,6 +5,7 @@ import * as sinonChai from 'sinon-chai';
 
 import { authextension } from '../src/authextension';
 import { stackAnalysisServices } from '../src/stackAnalysisService';
+import { GlobalState } from '../src/constants';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -37,10 +38,6 @@ suite('authextension Modules', () => {
       return '';
     }
   };
-
-  enum GlobalState {
-    UUID = 'uuid'
-  }
 
   setup(() => {
     sandbox = sinon.createSandbox();
@@ -91,19 +88,23 @@ suite('authextension Modules', () => {
   test('authorize_f8_analytics should call get_3scale_routes, getUUID and return success', async () => {
     context.globalState.update('f8_access_routes', '');
     context.globalState.update('f8_3scale_user_key', '');
-    context.globalState.update(GlobalState.UUID, "");
+    context.globalState.update(GlobalState.UUID, '');
+    const response = {
+      user_id: "a1b2c3d4"
+    }
     let stubGet_3scale_routes = sandbox
       .stub(authextension, 'get_3scale_routes')
       .resolves(true);
     let stubgetUUID = sandbox
       .stub(authextension, 'getUUID')
-      .resolves(true);
+      .resolves(response);
     let promiseAuthf8Analytics = await authextension.authorize_f8_analytics(
       context
     );
     expect(promiseAuthf8Analytics).equals(true);
     expect(stubGet_3scale_routes).callCount(1);
     expect(stubgetUUID).callCount(1);
+    expect(process.env['UUID']).equals('a1b2c3d4');
   });
 
   test('authorize_f8_analytics should call get_3scale_routes and return err', async () => {
