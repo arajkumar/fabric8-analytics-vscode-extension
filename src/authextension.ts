@@ -7,7 +7,6 @@ import * as fetch from 'node-fetch'
 
 export module authextension {
   export let setContextData: any;
-  export let setUUID: any;
 
   setContextData = (context_f8_access_routes, context_f8_3scale_user_key) => {
     Apiendpoint.STACK_API_URL = context_f8_access_routes.prod + '/api/v2/';
@@ -18,7 +17,7 @@ export module authextension {
     process.env['THREE_SCALE_USER_TOKEN'] = context_f8_3scale_user_key;
   };
 
-  setUUID = (uuid) => {
+  export function setUUID(uuid) {
     process.env['UUID'] = uuid;
   };
 
@@ -61,7 +60,7 @@ export module authextension {
     }
   };
 
-  export const getUUID = async context => {
+  export async function getUUID(context): Promise<string> {
     const url = `${
       Apiendpoint.OSIO_ROUTE_URL
       }/user?user_key=${Apiendpoint.STACK_API_USER_KEY}`;
